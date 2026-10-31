@@ -1,15 +1,16 @@
-# `/agents` 👥⚡
+# `/agents`
 
 > **Claude Code-style multi-agent coding orchestra for Gemini in Google Antigravity.**  
 > Ingests a `prd.md`, dynamically spins up specialized engineer agents, partitions work streams, writes code collaboratively, and verifies everything with an automated self-healing test loop.
 
 [![Antigravity Skill](https://img.shields.io/badge/Antigravity-Skill-blue?style=flat-square)](https://github.com/berlin-566/-agents)
 [![Gemini Models](https://img.shields.io/badge/Gemini-3.8_Pro_%26_Flash-orange?style=flat-square)](https://deepmind.google/technologies/gemini/)
+[![Zero Emojis](https://img.shields.io/badge/Policy-Zero_Emojis-black?style=flat-square)](https://github.com/berlin-566/-agents)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 
 ---
 
-## ⚡ Quick Install (One-Liner)
+## Quick Install (One-Liner)
 
 Install `/agents` directly into your Antigravity configuration with a single command:
 
@@ -21,7 +22,7 @@ curl -fsSL https://raw.githubusercontent.com/berlin-566/-agents/main/install.sh 
 
 ---
 
-## 💡 The Aha! Mental Model
+## Mental Model & Architecture
 
 When you build complex features, a single model doing everything can lose context, overlook edge cases, or introduce subtle regressions. In Claude Code, specialized agents coordinate to architect, code, and review simultaneously.
 
@@ -35,16 +36,17 @@ flowchart TD
     Phase1 --> Phase2["Phase 2: Collaborative Team Coding (Backend, Frontend, Services)"]
     Phase2 --> Phase3["Phase 3: Integration & Wiring"]
     Phase3 --> Phase4{"Phase 4: Adversarial Audit & QA Suite"}
-    Phase4 -- "Issues / Failures" --> Repair["Self-Healing: Route Traceback to Coder (Max 3)"]
+    Phase4 -- "Issues / Failures / Emojis" --> Repair["Self-Healing: Route Traceback to Coder (Max 3)"]
     Repair --> Phase4
     Phase4 -- "Zero Blockers" --> Done["Phase 5: Delivery Report & Verified Code"]
 ```
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
 - **Dynamic Specialist Roster**: The lead Gemini coordinator analyzes your `prd.md` and dynamically defines tailored agents using `define_subagent` (e.g. `db-architect`, `backend-engineer`, `frontend-engineer`, `qa-auditor`).
+- **Strict Zero-Emoji Policy**: Agents are strictly instructed never to insert or generate emojis in source code, docstrings, comments, test suites, commit messages, or chat updates. Reviewers automatically flag any emoji as a blocker.
 - **Smart Model Tiering**:
   - **Gemini Pro**: Handles system architecture, contract definitions, and adversarial diff audits where high-order reasoning matters most.
   - **Gemini Flash / Inherit**: Powers high-speed code generation, surgical edits, and rapid test execution loops.
@@ -54,7 +56,7 @@ flowchart TD
 
 ---
 
-## 🛠️ Usage
+## Usage
 
 ### 1. Build a Complete PRD
 Create a `prd.md` (or `PRD.md`) file describing your feature or system, then run:
@@ -78,23 +80,23 @@ You can also invoke individual phases of the team at any time:
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```text
 -agents/
-├── SKILL.md                          # Antigravity skill manifest & orchestration rules
-├── install.sh                        # One-liner remote/local installer
-├── uninstall.sh                      # Clean removal script
-├── references/
-│   ├── agent_prompts.md              # Specialist system prompts & self-healing templates
-│   └── team_orchestration.md         # PRD decomposition & file isolation guidelines
-├── README.md                         # Documentation & quickstart
-└── LICENSE                           # MIT License
+|-- SKILL.md                          # Antigravity skill manifest & orchestration rules
+|-- install.sh                        # One-liner remote/local installer
+|-- uninstall.sh                      # Clean removal script
+|-- references/
+|   |-- agent_prompts.md              # Specialist system prompts & self-healing templates
+|   `-- team_orchestration.md         # PRD decomposition & file isolation guidelines
+|-- README.md                         # Documentation & quickstart
+`-- LICENSE                           # MIT License
 ```
 
 ---
 
-## 🔧 Manual Installation
+## Manual Installation
 
 If you prefer not to use `curl`, clone the repository directly into your Antigravity skills directory:
 
@@ -105,13 +107,13 @@ git clone https://github.com/berlin-566/-agents.git ~/.gemini/config/skills/agen
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
-Contributions, feedback, and custom agent templates are warmly welcomed!
+Contributions, feedback, and custom agent templates are welcome.
 Feel free to open an issue or submit a pull request.
 
 ---
 
-## 📜 License
+## License
 
 Released under the [MIT License](LICENSE).

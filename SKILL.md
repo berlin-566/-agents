@@ -4,8 +4,9 @@ description: >-
   Claude Code-style multi-agent coding team for Gemini in Antigravity. Ingests a PRD (e.g. prd.md)
   or task spec, dynamically defines custom specialist agents tailored to the project stack, splits
   the work streams across agents, coordinates team coding with strict file ownership, and runs
-  integration testing with automated self-healing. Use when the user runs /agents, asks to build
-  a PRD with agents, multi-agent coding, or wants a collaborative agent team to code together.
+  integration testing with automated self-healing. Strictly adheres to a zero-emoji policy across
+  all code, comments, and outputs. Use when the user runs /agents, asks to build a PRD with agents,
+  multi-agent coding, or wants a collaborative agent team to code together.
 ---
 
 # `/agents` - PRD-Driven Multi-Agent Collaborative Coding Team
@@ -39,9 +40,9 @@ flowchart TD
 - **Interactive Task Delegation**:
   - `/agents implement <feature description>`
 - **Single-Phase Subcommands**:
-  - `/agents decompose <prd.md>` — Analyzes the PRD and outputs the team structure and work streams without coding.
-  - `/agents review` — Triggers an adversarial multi-agent code audit on current uncommitted changes.
-  - `/agents test` — Runs the QA specialist to verify test suites and fix regressions.
+  - `/agents decompose <prd.md>` - Analyzes the PRD and outputs the team structure and work streams without coding.
+  - `/agents review` - Triggers an adversarial multi-agent code audit on current uncommitted changes.
+  - `/agents test` - Runs the QA specialist to verify test suites and fix regressions.
 
 ---
 
@@ -55,69 +56,73 @@ flowchart TD
 ### Step 2: Dynamic Team Definition (`define_subagent`)
 The coordinator determines the optimal team composition based on the PRD requirements and registers each specialist using `define_subagent`.
 
+#### Strict Zero-Emoji Rule
+All subagents must adhere strictly to the zero-emoji rule: NEVER output, generate, or accept emojis in code, docstrings, comments, test assertions, commit messages, or responses.
+
 #### Example Standard Roster for a Full-Stack PRD:
 1. **`db-architect`** (Model: `pro`, `EnableWriteTools: true`):
    - Scope: Database models, schemas, migrations, seed data, and data access layer.
    - Files: e.g., `src/db/**`, `prisma/**`, `models/**`.
+   - System Prompt Directive: "Zero-Emoji Rule: Do NOT include emojis anywhere in schema definitions, migration files, SQL comments, or docs."
 2. **`backend-engineer`** (Model: `flash` / `inherit`, `EnableWriteTools: true`):
    - Scope: Business logic, API routes, controllers, middleware, authentication.
    - Files: e.g., `src/server/**`, `src/api/**`, `src/services/**`.
+   - System Prompt Directive: "Zero-Emoji Rule: Do NOT include emojis anywhere in source code, variable names, log statements, comments, or documentation."
 3. **`frontend-engineer`** (Model: `flash` / `inherit`, `EnableWriteTools: true`):
    - Scope: UI components, pages, client state management, styling, API integration hooks.
    - Files: e.g., `src/client/**`, `src/components/**`, `src/views/**`.
+   - System Prompt Directive: "Zero-Emoji Rule: Do NOT include emojis anywhere in JSX/TSX/HTML components, CSS, strings, comments, or documentation."
 4. **`qa-auditor`** (Model: `pro`, `EnableWriteTools: true`):
    - Scope: Integration tests, end-to-end verification, adversarial diff review, running build/test runners.
    - Files: e.g., `tests/**`, `*.spec.ts`, `*.test.py`.
-
-> [!IMPORTANT]
-> **Dynamic Customization**: For specialized projects (e.g. Linux desktop shell, CLI tool, or AI pipeline), define domain-specific agents instead (e.g., `qml-specialist`, `daemon-specialist`, `cli-ux-specialist`).
+   - System Prompt Directive: "Zero-Emoji Enforcement: Flag ANY emoji found in code, comments, or files as a [BLOCKER]. Never output emojis in test names, logs, or reports."
 
 ---
 
-### Step 3: Phase 1 — Shared Foundations & Contracts
+### Step 3: Phase 1 - Shared Foundations & Contracts
 Before parallel coding begins, the foundational data structures and contracts must be established:
 1. Dispatch `db-architect` (or the Lead Architect) via `invoke_subagent` to write:
    - Data models, database migrations, or core interface types (e.g., `types.ts`, `schema.sql`, `models.py`).
 2. Once complete, share these generated types and contract paths with the downstream team.
 3. Announce milestone:
-   > 🏗️ **[Foundations]** Shared types and data contracts established.
+   > [Foundations] Shared types and data contracts established.
 
 ---
 
-### Step 4: Phase 2 — Collaborative Team Coding
+### Step 4: Phase 2 - Collaborative Team Coding
 With contracts in place, dispatch work packages to the respective engineering agents:
 1. **Backend Agent**: Implements business services and API endpoints following the shared types.
 2. **Frontend Agent**: Implements the UI views, forms, and client hooks consuming those APIs.
 3. Each agent operates with strict file boundaries to prevent conflicts.
 4. Announce milestone:
-   > 💻 **[Team Coding]** Backend and Frontend agents implemented target modules across X files.
+   > [Team Coding] Backend and Frontend agents implemented target modules across X files.
 
 ---
 
-### Step 5: Phase 3 — Integration & Wiring
+### Step 5: Phase 3 - Integration & Wiring
 1. The coordinator or Lead Engineer inspects the integration touchpoints (entry points, router mounting, dependency injection, environment configs).
 2. Wire up the components (e.g., registering new routes in `app.ts` or mounting client components in the main router).
 3. Announce milestone:
-   > 🔌 **[Integration]** Modules connected and service entry points wired up.
+   > [Integration] Modules connected and service entry points wired up.
 
 ---
 
-### Step 6: Phase 4 — Adversarial Review, QA & Self-Healing Loop
+### Step 6: Phase 4 - Adversarial Review, QA & Self-Healing Loop
 1. Dispatch `qa-auditor` via `invoke_subagent`:
-   - Scrutinize the full diff for logic errors, security flaws, and missed PRD requirements.
+   - Scrutinize the full diff for logic errors, security flaws, zero-emoji compliance, and missed PRD requirements.
    - Write or update end-to-end and unit tests covering the PRD acceptance criteria.
    - Execute the test suite using `run_command` (e.g. `npm test`, `pytest`).
 2. **Automated Self-Healing Loop**:
-   - If tests fail or the auditor finds `[BLOCKER]` issues:
+   - If tests fail, if emojis are detected, or if the auditor finds `[BLOCKER]` issues:
      - The coordinator routes the exact traceback or review finding back to the responsible agent (`backend-engineer`, `frontend-engineer`, or `db-architect`).
      - The specialist fixes the code.
      - `qa-auditor` re-tests (up to 3 repair iterations).
 3. Once clean:
-   > 🛡️ **[QA & Audit]** Verification complete with zero blockers. All tests passing cleanly.
+   > [QA & Audit] Verification complete with zero blockers. All tests passing cleanly.
 
 ---
 
-### Step 7: Phase 5 — Synthesis Artifact & Completion Report
+### Step 7: Phase 5 - Synthesis Artifact & Completion Report
 Generate an artifact at:
 `<appDataDir>/brain/<conversation-id>/PRD_DELIVERY_REPORT.md`
 
@@ -127,14 +132,15 @@ Contents:
 - **File Matrix**: Table of all created and modified files linked with clickable `file://` URLs.
 - **QA Verification**: Test command run, test pass counts, and benchmark timings.
 
-Provide a crisp markdown summary in chat with clickable links.
+Provide a concise plain-text markdown summary in chat with clickable links.
 
 ---
 
 ## 4. Key Rules for Multi-Agent Team Harmony
 
-1. **Strict File Ownership**: No two subagents should edit the exact same file concurrently. Foundation contracts (types, schemas) are committed first before downstream agents consume them.
-2. **Smart Model Tiering**: Use `pro` for architects and auditors where deep reasoning and edge cases matter; use `flash` or `inherit` for implementers and test runners.
-3. **Reactive Wakeup**: When an agent is dispatched via `invoke_subagent`, do not poll. Antigravity will resume the coordinator once the agent completes.
-4. **Self-Healing Cap**: Cap automated repair loops at 3 iterations to avoid infinite recursion. If still failing after 3 attempts, bubble up the exact failure to the user for guidance.
-5. **Clickable Links**: Always link referenced files and code symbols using clickable `file://` markdown links (e.g., [`src/server.ts`](file:///workspace/src/server.ts)).
+1. **Strict Zero-Emoji Policy**: No emojis are permitted anywhere in source code, comments, docstrings, variable names, test descriptions, commit messages, progress milestones, or delivery reports. All outputs must remain strictly clean, professional, and plain-text.
+2. **Strict File Ownership**: No two subagents should edit the exact same file concurrently. Foundation contracts (types, schemas) are committed first before downstream agents consume them.
+3. **Smart Model Tiering**: Use `pro` for architects and auditors where deep reasoning and edge cases matter; use `flash` or `inherit` for implementers and test runners.
+4. **Reactive Wakeup**: When an agent is dispatched via `invoke_subagent`, do not poll. Antigravity will resume the coordinator once the agent completes.
+5. **Self-Healing Cap**: Cap automated repair loops at 3 iterations to avoid infinite recursion. If still failing after 3 attempts, bubble up the exact failure to the user for guidance.
+6. **Clickable Links**: Always link referenced files and code symbols using clickable `file://` markdown links (e.g., [`src/server.ts`](file:///workspace/src/server.ts)).
