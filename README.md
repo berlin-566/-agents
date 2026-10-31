@@ -5,7 +5,6 @@
 
 [![Antigravity Skill](https://img.shields.io/badge/Antigravity-Skill-blue?style=flat-square)](https://github.com/berlin-566/-agents)
 [![Gemini Models](https://img.shields.io/badge/Gemini-3.8_Pro_%26_Flash-orange?style=flat-square)](https://deepmind.google/technologies/gemini/)
-[![Zero Emojis](https://img.shields.io/badge/Policy-Zero_Emojis-black?style=flat-square)](https://github.com/berlin-566/-agents)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 
 ---
