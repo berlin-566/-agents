@@ -1,146 +1,143 @@
 ---
 name: agents
 description: >-
-  Claude Code-style multi-agent coding team for Gemini in Antigravity. Ingests a PRD (e.g. prd.md)
-  or task spec, dynamically defines custom specialist agents tailored to the project stack, splits
-  the work streams across agents, coordinates team coding with strict file ownership, and runs
-  integration testing with automated self-healing. Strictly adheres to a zero-emoji policy across
-  all code, comments, and outputs. Use when the user runs /agents, asks to build a PRD with agents,
-  multi-agent coding, or wants a collaborative agent team to code together.
+  Claude Code-style multi-agent coding orchestra for Gemini in Antigravity. Ingests a PRD (e.g. prd.md)
+  or task spec, dynamically defines custom specialist agents (Security Researcher, Domain Expert,
+  Performance Engineer, Architect, Coder, Reviewer, Tester), coordinates team coding with strict file
+  ownership, and runs integration testing with automated self-healing. Strictly adheres to a zero-emoji
+  policy across all code, comments, and outputs. Use when the user runs /agents, asks to build a PRD,
+  wants security auditing, performance profiling, or collaborative agent pair programming.
 ---
 
-# `/agents` - PRD-Driven Multi-Agent Collaborative Coding Team
+# `/agents` - Multi-Agent Specialist Engineering Team for Gemini
 
-This skill transforms Antigravity into an autonomous software engineering team powered by Gemini models. Given a product requirements document (`prd.md`) or coding task, the coordinator dynamically designs the optimal agent team, registers each specialist via `define_subagent`, partitions the codebase into non-overlapping work streams, coordinates collaborative coding, and verifies the integrated build.
-
----
-
-## 1. How It Works: The Team Lifecycle
-
-When the user runs `/agents` (or `/agents build prd.md`), the coordinator executes the following workflow:
-
-```mermaid
-flowchart TD
-    PRD["1. Ingest PRD (prd.md) & Analyze Stack"] --> Decompose["2. Map Modular Architecture & File Boundaries"]
-    Decompose --> DefineAgents["3. Dynamically Define Specialist Agents (define_subagent)"]
-    DefineAgents --> PhaseShared["Phase 1: Shared Foundations (Types, Schemas, Contracts)"]
-    PhaseShared --> PhaseParallel["Phase 2: Collaborative Team Coding (Backend, Frontend, Services)"]
-    PhaseParallel --> PhaseIntegrate["Phase 3: Integration & Wiring"]
-    PhaseIntegrate --> PhaseAudit["Phase 4: Adversarial Review & End-to-End QA (Self-Healing Loop)"]
-    PhaseAudit --> Done["Phase 5: Final Delivery Report & Artifact"]
-```
+This skill equips Antigravity with a full suite of specialized engineering agents powered by Gemini models. Given a product requirements document (`prd.md`), a security audit request, a performance problem, or a coding task, the coordinator dynamically manages a roster of specialists, registers them via `define_subagent`, partitions work streams, and coordinates delivery.
 
 ---
 
-## 2. Invocation Modes
+## 1. Specialist Agent Roster
+
+| Agent Name | Role | Model Tier | Tools Allowed | Primary Responsibility |
+| :--- | :--- | :--- | :--- | :--- |
+| **`gemini-security-researcher`** | Security Auditor | `pro` | Read-only | Vulnerability analysis (OWASP, injection, auth bypass, secret leaks, CVEs) |
+| **`gemini-code-expert`** | Domain & Algorithmic Expert | `pro` | Full Write/Exec | Complex math, state machines, advanced algorithms, deep refactoring |
+| **`gemini-perf-expert`** | Performance Engineer | `pro` | Read-only | Profiling, memory leaks, latency bottlenecks, concurrency safety |
+| **`gemini-architect`** | Software Architect | `pro` | Read-only | PRD decomposition, interfaces, data contracts, edge-case modeling |
+| **`gemini-coder`** | Senior Engineer | `flash` / `inherit` | Full Write/Exec | Surgical implementation, minimal diff footprint, clean idioms |
+| **`gemini-reviewer`** | Adversarial Auditor | `pro` | Read-only | Adversarial diff audit, zero-emoji compliance, logic flaw detection |
+| **`gemini-tester`** | QA Engineer | `flash` / `inherit` | Full Write/Exec | Test suite execution (`npm test`, `pytest`, `cargo test`), QA verification |
+
+---
+
+## 2. Invocation Modes & Subcommands
 
 - **Full PRD Build**:
   - `/agents build prd.md` (or `/agents build path/to/spec.md`)
   - `/agents` (if `prd.md` or `PRD.md` exists in the workspace, it is detected automatically)
-- **Interactive Task Delegation**:
-  - `/agents implement <feature description>`
-- **Single-Phase Subcommands**:
-  - `/agents decompose <prd.md>` - Analyzes the PRD and outputs the team structure and work streams without coding.
-  - `/agents review` - Triggers an adversarial multi-agent code audit on current uncommitted changes.
-  - `/agents test` - Runs the QA specialist to verify test suites and fix regressions.
+- **Specialist On-Demand Subcommands**:
+  - `/agents security` - Dispatches `gemini-security-researcher` to audit codebase vulnerabilities.
+  - `/agents expert <topic>` - Dispatches `gemini-code-expert` for deep technical reasoning or complex problem-solving.
+  - `/agents perf` - Dispatches `gemini-perf-expert` to analyze CPU/memory hotspots and latency.
+  - `/agents review` - Runs an adversarial diff audit on uncommitted changes.
+  - `/agents test` - Dispatches `gemini-tester` to execute the project test runner.
+  - `/agents plan <task>` - Dispatches `gemini-architect` to produce a technical design specification.
 
 ---
 
-## 3. Step-by-Step Execution Protocol
+## 3. End-to-End PRD Team Workflow
 
-### Step 1: PRD Analysis & Architecture Mapping
-1. Read the PRD file (`prd.md`, `PRD.md`, or the task prompt).
-2. Scan workspace dependencies and layout (`package.json`, `Cargo.toml`, `pyproject.toml`, directory tree) to determine the exact tech stack.
-3. Partition the PRD into modular work packages with strict file boundaries so agents never overwrite each other.
+When executing `/agents build prd.md`, the coordinator follows this 5-phase lifecycle:
 
-### Step 2: Dynamic Team Definition (`define_subagent`)
-The coordinator determines the optimal team composition based on the PRD requirements and registers each specialist using `define_subagent`.
-
-#### Strict Zero-Emoji Rule
-All subagents must adhere strictly to the zero-emoji rule: NEVER output, generate, or accept emojis in code, docstrings, comments, test assertions, commit messages, or responses.
-
-#### Example Standard Roster for a Full-Stack PRD:
-1. **`db-architect`** (Model: `pro`, `EnableWriteTools: true`):
-   - Scope: Database models, schemas, migrations, seed data, and data access layer.
-   - Files: e.g., `src/db/**`, `prisma/**`, `models/**`.
-   - System Prompt Directive: "Zero-Emoji Rule: Do NOT include emojis anywhere in schema definitions, migration files, SQL comments, or docs."
-2. **`backend-engineer`** (Model: `flash` / `inherit`, `EnableWriteTools: true`):
-   - Scope: Business logic, API routes, controllers, middleware, authentication.
-   - Files: e.g., `src/server/**`, `src/api/**`, `src/services/**`.
-   - System Prompt Directive: "Zero-Emoji Rule: Do NOT include emojis anywhere in source code, variable names, log statements, comments, or documentation."
-3. **`frontend-engineer`** (Model: `flash` / `inherit`, `EnableWriteTools: true`):
-   - Scope: UI components, pages, client state management, styling, API integration hooks.
-   - Files: e.g., `src/client/**`, `src/components/**`, `src/views/**`.
-   - System Prompt Directive: "Zero-Emoji Rule: Do NOT include emojis anywhere in JSX/TSX/HTML components, CSS, strings, comments, or documentation."
-4. **`qa-auditor`** (Model: `pro`, `EnableWriteTools: true`):
-   - Scope: Integration tests, end-to-end verification, adversarial diff review, running build/test runners.
-   - Files: e.g., `tests/**`, `*.spec.ts`, `*.test.py`.
-   - System Prompt Directive: "Zero-Emoji Enforcement: Flag ANY emoji found in code, comments, or files as a [BLOCKER]. Never output emojis in test names, logs, or reports."
+```mermaid
+flowchart TD
+    PRD["1. Ingest PRD (prd.md) & Analyze Stack"] --> Decompose["2. Map Architecture & File Boundaries"]
+    Decompose --> DefineAgents["3. Register Specialists (Architect, Coder, Security, QA)"]
+    DefineAgents --> Phase1["Phase 1: Shared Foundations & Data Contracts"]
+    Phase1 --> Phase2["Phase 2: Collaborative Team Coding (Backend, Frontend, Services)"]
+    Phase2 --> Phase3["Phase 3: Integration & Wiring"]
+    Phase3 --> Phase4{"Phase 4: Security Audit, Review & Test Suite"}
+    Phase4 -- "Issues / Failures / Emojis" --> Repair["Self-Healing: Route Tracebacks to Coder (Max 3)"]
+    Repair --> Phase4
+    Phase4 -- "Clean Pass" --> Done["Phase 5: Synthesis Artifact & Verified Build"]
+```
 
 ---
 
-### Step 3: Phase 1 - Shared Foundations & Contracts
-Before parallel coding begins, the foundational data structures and contracts must be established:
-1. Dispatch `db-architect` (or the Lead Architect) via `invoke_subagent` to write:
-   - Data models, database migrations, or core interface types (e.g., `types.ts`, `schema.sql`, `models.py`).
-2. Once complete, share these generated types and contract paths with the downstream team.
-3. Announce milestone:
-   > [Foundations] Shared types and data contracts established.
+## 4. Subagent Registration Details
+
+Before invoking any agent, the coordinator registers required specialists using `define_subagent`:
+
+### Strict Zero-Emoji Rule
+All subagents must strictly obey the zero-emoji policy: NEVER output, insert, or accept emojis in source code, docstrings, comments, test assertions, commit messages, or responses.
+
+```json
+[
+  {
+    "Name": "gemini-security-researcher",
+    "Description": "Principal security researcher and vulnerability auditor.",
+    "EnableWriteTools": false,
+    "EnableMCPTools": true,
+    "EnableSubagentTools": false,
+    "SystemPrompt": "You are a Principal Security Researcher. Audit codebases for OWASP vulnerabilities, auth/session bypasses, injection, cryptographic pitfalls, and CVEs. Zero-Emoji Rule: Do NOT include emojis in reports or diffs."
+  },
+  {
+    "Name": "gemini-code-expert",
+    "Description": "Principal algorithmic specialist and domain expert.",
+    "EnableWriteTools": true,
+    "EnableMCPTools": true,
+    "EnableSubagentTools": false,
+    "SystemPrompt": "You are a Principal Software Expert. You solve complex algorithms, state machines, difficult math, and refactoring challenges. Zero-Emoji Rule: Do NOT include emojis in code, comments, or output."
+  },
+  {
+    "Name": "gemini-perf-expert",
+    "Description": "Systems performance and latency engineer.",
+    "EnableWriteTools": false,
+    "EnableMCPTools": true,
+    "EnableSubagentTools": false,
+    "SystemPrompt": "You are a Systems Performance Engineer. Profile memory, CPU hotspots, query latency, and concurrency locks. Zero-Emoji Rule: Do NOT include emojis in notes or output."
+  },
+  {
+    "Name": "gemini-architect",
+    "Description": "Principal software architect.",
+    "EnableWriteTools": false,
+    "EnableMCPTools": true,
+    "EnableSubagentTools": false,
+    "SystemPrompt": "You are a Principal Software Architect. Decompose requirements into specs, interface contracts, and module boundaries. Zero-Emoji Rule: Do NOT include emojis in specs or diagrams."
+  },
+  {
+    "Name": "gemini-coder",
+    "Description": "Senior polyglot software engineer.",
+    "EnableWriteTools": true,
+    "EnableMCPTools": true,
+    "EnableSubagentTools": false,
+    "SystemPrompt": "You are a Senior Polyglot Software Engineer. Make surgical, minimal-diff edits adhering strictly to architectural specs and existing idioms. Zero-Emoji Rule: Do NOT include emojis in code or comments."
+  },
+  {
+    "Name": "gemini-reviewer",
+    "Description": "Adversarial senior staff reviewer.",
+    "EnableWriteTools": false,
+    "EnableMCPTools": true,
+    "EnableSubagentTools": false,
+    "SystemPrompt": "You are an Adversarial Senior Staff Reviewer. Scrutinize diffs for logic bugs, regressions, security flaws, and zero-emoji compliance. Flag any emoji as a [BLOCKER]."
+  },
+  {
+    "Name": "gemini-tester",
+    "Description": "QA and automated test runner engineer.",
+    "EnableWriteTools": true,
+    "EnableMCPTools": true,
+    "EnableSubagentTools": false,
+    "SystemPrompt": "You are a QA and Test Automation Engineer. Write unit/integration tests and run the workspace test runner. Zero-Emoji Rule: Do NOT include emojis in tests, assertions, or reports."
+  }
+]
+```
 
 ---
 
-### Step 4: Phase 2 - Collaborative Team Coding
-With contracts in place, dispatch work packages to the respective engineering agents:
-1. **Backend Agent**: Implements business services and API endpoints following the shared types.
-2. **Frontend Agent**: Implements the UI views, forms, and client hooks consuming those APIs.
-3. Each agent operates with strict file boundaries to prevent conflicts.
-4. Announce milestone:
-   > [Team Coding] Backend and Frontend agents implemented target modules across X files.
+## 5. Self-Healing Integration Protocol
 
----
-
-### Step 5: Phase 3 - Integration & Wiring
-1. The coordinator or Lead Engineer inspects the integration touchpoints (entry points, router mounting, dependency injection, environment configs).
-2. Wire up the components (e.g., registering new routes in `app.ts` or mounting client components in the main router).
-3. Announce milestone:
-   > [Integration] Modules connected and service entry points wired up.
-
----
-
-### Step 6: Phase 4 - Adversarial Review, QA & Self-Healing Loop
-1. Dispatch `qa-auditor` via `invoke_subagent`:
-   - Scrutinize the full diff for logic errors, security flaws, zero-emoji compliance, and missed PRD requirements.
-   - Write or update end-to-end and unit tests covering the PRD acceptance criteria.
-   - Execute the test suite using `run_command` (e.g. `npm test`, `pytest`).
-2. **Automated Self-Healing Loop**:
-   - If tests fail, if emojis are detected, or if the auditor finds `[BLOCKER]` issues:
-     - The coordinator routes the exact traceback or review finding back to the responsible agent (`backend-engineer`, `frontend-engineer`, or `db-architect`).
-     - The specialist fixes the code.
-     - `qa-auditor` re-tests (up to 3 repair iterations).
-3. Once clean:
-   > [QA & Audit] Verification complete with zero blockers. All tests passing cleanly.
-
----
-
-### Step 7: Phase 5 - Synthesis Artifact & Completion Report
-Generate an artifact at:
-`<appDataDir>/brain/<conversation-id>/PRD_DELIVERY_REPORT.md`
-
-Contents:
-- **PRD Execution Summary**: Features implemented vs PRD requirements.
-- **Agent Team Roster**: Roles defined, model tiers used, and modules owned.
-- **File Matrix**: Table of all created and modified files linked with clickable `file://` URLs.
-- **QA Verification**: Test command run, test pass counts, and benchmark timings.
-
-Provide a concise plain-text markdown summary in chat with clickable links.
-
----
-
-## 4. Key Rules for Multi-Agent Team Harmony
-
-1. **Strict Zero-Emoji Policy**: No emojis are permitted anywhere in source code, comments, docstrings, variable names, test descriptions, commit messages, progress milestones, or delivery reports. All outputs must remain strictly clean, professional, and plain-text.
-2. **Strict File Ownership**: No two subagents should edit the exact same file concurrently. Foundation contracts (types, schemas) are committed first before downstream agents consume them.
-3. **Smart Model Tiering**: Use `pro` for architects and auditors where deep reasoning and edge cases matter; use `flash` or `inherit` for implementers and test runners.
-4. **Reactive Wakeup**: When an agent is dispatched via `invoke_subagent`, do not poll. Antigravity will resume the coordinator once the agent completes.
-5. **Self-Healing Cap**: Cap automated repair loops at 3 iterations to avoid infinite recursion. If still failing after 3 attempts, bubble up the exact failure to the user for guidance.
-6. **Clickable Links**: Always link referenced files and code symbols using clickable `file://` markdown links (e.g., [`src/server.ts`](file:///workspace/src/server.ts)).
+1. If the test runner fails or the security researcher/reviewer flags `[BLOCKER]` issues:
+   - Route the diagnostic trace or vulnerability findings directly back to `gemini-coder` or `gemini-code-expert`.
+   - The engineer applies surgical fixes.
+   - Re-test and re-audit (up to 3 automated repair iterations).
+2. Report milestones cleanly to the chat in plain text.
+3. Generate final delivery artifact at `<appDataDir>/brain/<conversation-id>/PRD_DELIVERY_REPORT.md`.
