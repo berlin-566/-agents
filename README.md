@@ -11,13 +11,24 @@
 
 ## Quick Install (One-Liner)
 
-Install `/agents` directly into your Antigravity configuration with a single command:
+Install `/agents` automatically with a single command:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/berlin-566/-agents/main/install.sh | bash
 ```
 
-*To update anytime, simply re-run the command above.*
+### What the Auto-Installer Handles
+- **Directory Detection & Creation**: Automatically checks if `~/.gemini/config/skills/agents` (or parent directories) exist. If missing, it creates the entire directory tree automatically.
+- **Smart Upgrades**: If an existing version is detected, it cleanly updates files to the latest release.
+- **Integrity Validation**: Verifies file sizes and integrity after downloading so you are never left with broken partial files.
+- **Zero Configuration**: Ready to use immediately in your Antigravity sessions.
+
+### Optional: Local Workspace Install
+To install only into the current project repository (`.agents/skills/agents`):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/berlin-566/-agents/main/install.sh | bash -s -- --local
+```
 
 ---
 
@@ -84,7 +95,7 @@ You can also invoke individual phases of the team at any time:
 ```text
 -agents/
 |-- SKILL.md                          # Antigravity skill manifest & orchestration rules
-|-- install.sh                        # One-liner remote/local installer
+|-- install.sh                        # Auto-installer with directory checks & self-handling
 |-- uninstall.sh                      # Clean removal script
 |-- references/
 |   |-- agent_prompts.md              # Specialist system prompts & self-healing templates
