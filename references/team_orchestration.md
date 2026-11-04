@@ -1,99 +1,121 @@
 # PRD Multi-Agent Team Orchestration Reference Guide
 
-This reference provides concrete patterns for decomposing a PRD into modular work streams, establishing clean file ownership boundaries, and conducting multi-agent team coding in Antigravity.
+This reference provides concrete patterns for orchestrating an entire end-to-end engineering project using `/swarm`, establishing clean file boundaries, utilizing the inter-agent message bus, and coordinating peer collaboration across Gemini specialist models.
 
 ---
 
-## 1. PRD Work-Stream Decomposition Pattern
+## 1. Project Directory Structure (`.swarm/`)
 
-When given a `prd.md`, the coordinator should break the specification into a Dependency Matrix:
+When a swarm project is initialized, the orchestrator sets up a structured project directory in the root of the workspace:
 
-| Stream | Responsible Agent | Upstream Dependencies | Output Artifacts / Files |
+```text
+.swarm/
+├── team.json                # Registered agent roster with models and status
+├── tasks.json               # Task state machine (PENDING, IN_PROGRESS, REVIEW, PASSED, BLOCKED, DONE)
+├── bus.jsonl                # Append-only global inter-agent communication log
+├── messages/                # Individual inbox directories per agent
+│   ├── gemini-architect/
+│   ├── gemini-coder/
+│   ├── gemini-reviewer/
+│   └── gemini-tester/
+├── contracts/               # Shared API specs, data schemas, TypeScript/Python interface definitions
+├── reports/                 # QA test outputs, security vulnerability scans, performance profiles
+└── SWARM_DELIVERY_REPORT.md # Final signed-off engineering delivery report
+```
+
+---
+
+## 2. Six-Phase Engineering Lifecycle
+
+```text
+Phase 1: INGESTION & RFC SPECIFICATION
+  - gemini-architect ingests PRD or task description.
+  - Inspects workspace layout and idioms.
+  - Publishes interface contracts to `.swarm/contracts/`.
+  - Dispatches tasks to task board: `python3 scripts/swarm_bus.py task create ...`
+  - Broadcasts project kickoff: `python3 scripts/swarm_bus.py msg broadcast ...`
+
+Phase 2: CONTRACT LOCK & TEST-DRIVEN SCAFFOLD
+  - gemini-tester reviews `.swarm/contracts/` and drafts test suites under `tests/`.
+  - Defines failing tests asserting requirements before code is written (TDD).
+  - gemini-architect locks contract definitions.
+
+Phase 3: COLLABORATIVE IMPLEMENTATION
+  - gemini-coder picks up assigned tasks: `python3 scripts/swarm_bus.py task update --id <T> --status IN_PROGRESS`.
+  - For complex algorithms or math, gemini-code-expert collaborates or implements core logic.
+  - Strict file ownership enforced: each agent only edits files within their declared ownership boundary.
+
+Phase 4: QUALITY GATES & VERIFICATION
+  - gemini-tester runs automated test runner: `python3 scripts/test_runner.py`.
+  - gemini-reviewer audits git diff for logic flaws, regressions, and runs `python3 scripts/emoji_linter.py --diff`.
+  - gemini-security-researcher scans for OWASP vulnerabilities and credential leaks.
+  - gemini-perf-expert profiles resource utilization and latency.
+
+Phase 5: AUTOMATED SELF-HEALING LOOP
+  - If tests fail or blockers are logged, diagnostics are automatically routed to gemini-coder via the swarm message bus.
+  - gemini-coder applies surgical fixes.
+  - Re-testing and re-auditing occur (up to 3 automated recovery cycles).
+
+Phase 6: DELIVERY & SIGN-OFF
+  - Orchestrator generates `.swarm/SWARM_DELIVERY_REPORT.md`.
+  - Git commit finalized with descriptive conventional message.
+```
+
+---
+
+## 3. Work-Stream Partitioning & Strict File Ownership
+
+To avoid merge conflicts, each agent must have clearly partitioned file boundaries:
+
+| Work Stream | Primary Owner | Secondary Reviewer | Declared File Ownership Scope |
 | :--- | :--- | :--- | :--- |
-| **0. Foundations** | `db-architect` / `lead-architect` | PRD Requirements | Database schemas, type definitions, shared interfaces (`src/types/*`) |
-| **1. Data Layer** | `db-architect` | Schemas & Migrations | ORM models, migration scripts, repository queries (`src/db/*`) |
-| **2. Core Services & API**| `backend-engineer` | Shared Types + Data Layer | Controllers, routes, services, middleware (`src/api/*`, `src/services/*`) |
-| **3. UI & Client State** | `frontend-engineer` | Shared Types + API Spec | Views, components, API client hooks, UI state (`src/ui/*`, `src/components/*`) |
-| **4. Integration & Entry**| Coordinator / Lead | Backend + Frontend | Router mounting, app initialization, env loading (`src/main.ts`, `src/app.ts`) |
-| **5. QA & Diff Audit** | `qa-auditor` | Integrated App | Unit/integration test suites (`tests/*`), verification runs, diff security check |
+| **API & Contracts** | `gemini-architect` | `gemini-coder` | `.swarm/contracts/*`, `src/types/*` |
+| **Core Logic / Algorithmic**| `gemini-code-expert` | `gemini-reviewer` | `src/core/*`, `src/algorithms/*` |
+| **Implementation / Integration** | `gemini-coder` | `gemini-reviewer` | `src/*` (excluding contracts/algorithms) |
+| **QA & Automated Testing** | `gemini-tester` | `gemini-coder` | `tests/*`, `scripts/*` |
+| **Security Audit** | `gemini-security-researcher` | `gemini-architect` | Read-only audit across all files |
+| **Performance Profiling** | `gemini-perf-expert` | `gemini-coder` | Read-only profiling and benchmark scripts |
 
 ---
 
-## 2. Dynamic Team Generation Templates
+## 4. Inter-Agent Communication Examples
 
-### Template A: Fullstack Web / Mobile App
-```json
-[
-  {
-    "Name": "db-architect",
-    "Description": "Database and data layer specialist.",
-    "EnableWriteTools": true,
-    "EnableMCPTools": true,
-    "EnableSubagentTools": false,
-    "SystemPrompt": "You are a Database Specialist and Systems Architect. Your job is to define schema migrations, ORM entities, and database queries adhering to the PRD. Ensure relational integrity, proper indexing, and clean type exports."
-  },
-  {
-    "Name": "backend-engineer",
-    "Description": "Backend and API specialist.",
-    "EnableWriteTools": true,
-    "EnableMCPTools": true,
-    "EnableSubagentTools": false,
-    "SystemPrompt": "You are a Senior Backend Engineer. Your job is to implement server routes, controllers, and services using the shared type definitions and database queries. Write robust error handling, validation, and clean REST/RPC endpoints."
-  },
-  {
-    "Name": "frontend-engineer",
-    "Description": "Frontend UI and state specialist.",
-    "EnableWriteTools": true,
-    "EnableMCPTools": true,
-    "EnableSubagentTools": false,
-    "SystemPrompt": "You are a Senior Frontend Engineer. Your job is to build user interfaces, components, and state management hooks based on the PRD. Integrate seamlessly with the defined backend endpoints. Focus on responsive, clean, and accessible UI."
-  },
-  {
-    "Name": "qa-auditor",
-    "Description": "QA, automated testing, and security auditor.",
-    "EnableWriteTools": true,
-    "EnableMCPTools": true,
-    "EnableSubagentTools": false,
-    "SystemPrompt": "You are a Staff QA Engineer and Adversarial Auditor. Your job is to verify that all PRD requirements are met. Scrutinize the git diff for bugs or security flaws, write automated test cases, and execute the test runner to prove everything passes."
-  }
-]
+### Example 1: Architect Hands Off Contracts to Coder
+```bash
+python3 scripts/swarm_bus.py msg send \
+  --from gemini-architect \
+  --to gemini-coder \
+  --subject "API Contract Finalized for Auth Module" \
+  --body "Contracts published at .swarm/contracts/auth.ts. Begin implementation on src/auth/." \
+  --type handoff
 ```
 
-### Template B: Systems / CLI Tool / Backend Service
-```json
-[
-  {
-    "Name": "engine-architect",
-    "Description": "Core domain logic and data structures engineer.",
-    "EnableWriteTools": true,
-    "EnableMCPTools": true,
-    "EnableSubagentTools": false,
-    "SystemPrompt": "You are a Systems Architect. You design and implement the core engine, data structures, and algorithms required by the PRD. Emphasize performance, memory safety, and modularity."
-  },
-  {
-    "Name": "cli-engineer",
-    "Description": "Command-line interface and I/O engineer.",
-    "EnableWriteTools": true,
-    "EnableMCPTools": true,
-    "EnableSubagentTools": false,
-    "SystemPrompt": "You are a CLI/UX Engineer. You implement the argument parser, terminal output formatting, configuration loader, and shell interactions, wiring them into the core engine."
-  },
-  {
-    "Name": "qa-auditor",
-    "Description": "Test automation and regression specialist.",
-    "EnableWriteTools": true,
-    "EnableMCPTools": true,
-    "EnableSubagentTools": false,
-    "SystemPrompt": "You are a QA and Test Automation Engineer. You write comprehensive unit and integration tests, verify CLI flags and error exits, and run test suites to guarantee zero regressions."
-  }
-]
+### Example 2: Tester Routes Test Failure to Coder
+```bash
+python3 scripts/swarm_bus.py msg send \
+  --from gemini-tester \
+  --to gemini-coder \
+  --subject "[BLOCKER] Test Failure in test_token_expiry" \
+  --body "AssertionError: Token expiry 3600 expected, got 0 in src/auth/token.py:45." \
+  --type blocker
 ```
 
----
+### Example 3: Coder Notifies Reviewer and Tester
+```bash
+python3 scripts/swarm_bus.py msg send \
+  --from gemini-coder \
+  --to gemini-reviewer \
+  --subject "Fix Applied for test_token_expiry" \
+  --body "Corrected default expiry calculation in src/auth/token.py:45. Ready for re-review." \
+  --type handoff
+```
 
-## 3. Collaborative Handoff Protocol
-
-To ensure subagents work together seamlessly without merge conflicts:
-1. **Contract Handoff**: The output of the Foundations phase (e.g. `src/types/index.ts`) must be shared in the prompt of subsequent engineering agents.
-2. **File Isolation**: When dispatching `backend-engineer`, explicitly state: *"You own files under `src/api/` and `src/services/`. Do not edit files under `src/ui/`."*
-3. **Cross-Agent Fixes**: If a frontend agent reports an incompatible response schema from the backend, the coordinator routes an adjustment request back to `backend-engineer` rather than letting the frontend agent rewrite backend code.
+### Example 4: Reviewer Approves Changes
+```bash
+python3 scripts/swarm_bus.py msg send \
+  --from gemini-reviewer \
+  --to coordinator \
+  --subject "Review Clearance: Auth Module" \
+  --body "Diff verified clean. Zero emojis present. All blockers resolved. APPROVED." \
+  --type approval
+```

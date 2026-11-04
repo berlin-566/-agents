@@ -1,12 +1,12 @@
-# Swarm Multi-Agent Specialist Roster and Guidelines
+# Swarm Multi-Agent Specialist Roster and Engineering Protocol
 
-Antigravity is equipped with a specialized multi-agent engineering swarm powered by Gemini models. When the user requests multi-agent coding, invokes `/swarm`, or asks for dedicated specialist analysis (security research, domain expertise, performance profiling, architecture design):
+Antigravity is equipped with a specialized multi-agent engineering swarm powered by Gemini models. When the user requests multi-agent coding, invokes `/swarm`, or asks for dedicated specialist analysis:
 
-## Available Specialist Agents
+## 1. Available Specialist Agents
 
 1. **`gemini-architect`** (Model: `pro`):
    - Principal systems architect.
-   - Decomposes tasks/PRDs, maps module boundaries, defines API contracts and data models before code is written.
+   - Decomposes tasks/PRDs, maps module boundaries, defines API contracts and data models in `.swarm/contracts/` before code is written.
    - Invocation triggers: `/swarm plan <task>`, `/swarm build <prd.md>`
 
 2. **`gemini-coder`** (Model: `flash` / `inherit`):
@@ -15,18 +15,18 @@ Antigravity is equipped with a specialized multi-agent engineering swarm powered
 
 3. **`gemini-reviewer`** (Model: `pro`):
    - Adversarial code auditor.
-   - Scrutinizes diffs for logic bugs, regressions, security flaws, and zero-emoji compliance.
+   - Scrutinizes diffs for logic bugs, regressions, security flaws, and zero-emoji compliance using `python3 scripts/emoji_linter.py --diff`.
    - Invocation triggers: `/swarm review`
 
 4. **`gemini-tester`** (Model: `flash` / `inherit`):
    - QA and automated test runner engineer.
-   - Writes unit/integration tests and executes test suites (`npm test`, `pytest`, `cargo test`, `go test`).
+   - Writes unit/integration tests and executes test suites via `python3 scripts/test_runner.py`.
    - Invocation triggers: `/swarm test`
 
 5. **`gemini-security-researcher`** (Model: `pro`):
    - Dedicated vulnerability hunter and security auditor.
-   - Analyzes codebases for OWASP Top 10, authentication/authorization bypasses, injection, insecure deserialization, cryptographic weaknesses, secret exposure, and dependency CVEs.
-   - Invocation triggers: `/swarm security`, "run security audit on...", "check vulnerabilities in..."
+   - Analyzes codebases for OWASP Top 10, auth/session bypasses, injection, and credential leaks.
+   - Invocation triggers: `/swarm security`, "run security audit on..."
 
 6. **`gemini-code-expert`** (Model: `pro`):
    - Principal algorithmic specialist and domain expert.
@@ -35,14 +35,21 @@ Antigravity is equipped with a specialized multi-agent engineering swarm powered
 
 7. **`gemini-perf-expert`** (Model: `pro`):
    - Systems performance, memory, and latency engineer.
-   - Identifies memory leaks, unbounded allocations, CPU hotspots, cache misses, and database query bottlenecks.
-   - Invocation triggers: `/swarm perf`, "profile performance on...", "optimize memory in..."
+   - Identifies memory leaks, unbounded allocations, CPU hotspots, and database query bottlenecks.
+   - Invocation triggers: `/swarm perf`, "profile performance on..."
 
-## Orchestration Protocol
+---
+
+## 2. Orchestration & Inter-Agent Team Protocol
 
 When `/swarm` is invoked:
 1. Present the user with an interactive multi-select choice to select the swarm agents (or define custom specialists).
 2. Register the chosen agents using `define_subagent` if not already defined in the conversation.
-3. Partition work streams with strict file ownership and dispatch tasks to them using `invoke_subagent`.
-4. Never poll: Antigravity automatically wakes up the coordinator when an agent responds.
-5. Strict Zero-Emoji Policy: Neither the coordinator nor any subagent may use emojis in code, comments, commit messages, or reports.
+3. Bootstrap the project workspace using `python3 scripts/orchestrator.py bootstrap`.
+4. Partition work streams with strict file ownership. Subagents collaborate via the message bus (`python3 scripts/swarm_bus.py`) and Antigravity inter-agent messaging.
+5. Quality Gates & Self-Healing:
+   - Automated test execution via `python3 scripts/test_runner.py --notify-coder`.
+   - Zero-emoji enforcement via `python3 scripts/emoji_linter.py`.
+   - Up to 3 automated repair iterations if failures or blockers occur.
+6. Deliver final verified code and compile `.swarm/SWARM_DELIVERY_REPORT.md`.
+7. Strict Zero-Emoji Policy: Neither the coordinator nor any subagent may use emojis in code, comments, commit messages, or reports.

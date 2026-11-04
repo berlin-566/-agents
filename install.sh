@@ -75,6 +75,7 @@ echo -e "  - Skills:  ${GRAY}${SKILLS_DIR}${NC}"
 echo -e "  - Plugins: ${GRAY}${PLUGINS_DIR}${NC}"
 
 mkdir -p "${SKILLS_DIR}/references"
+mkdir -p "${SKILLS_DIR}/scripts"
 mkdir -p "${PLUGINS_DIR}/rules"
 echo -e "[OK] Directory trees verified."
 
@@ -88,6 +89,10 @@ if [[ -n "${SCRIPT_DIR}" && -f "${SCRIPT_DIR}/SKILL.md" ]]; then
     cp -f "${SCRIPT_DIR}/SKILL.md" "${SKILLS_DIR}/SKILL.md"
     if [[ -d "${SCRIPT_DIR}/references" ]]; then
         cp -rf "${SCRIPT_DIR}/references/"* "${SKILLS_DIR}/references/"
+    fi
+    if [[ -d "${SCRIPT_DIR}/scripts" ]]; then
+        cp -rf "${SCRIPT_DIR}/scripts/"* "${SKILLS_DIR}/scripts/"
+        chmod +x "${SKILLS_DIR}/scripts/"*.py 2>/dev/null || true
     fi
 
     # Plugin and rule files
@@ -121,6 +126,20 @@ else
     echo -e "${GRAY}  -> Fetching references/team_orchestration.md...${NC}"
     ${DOWNLOAD_CMD} "${REPO_RAW_URL}/references/team_orchestration.md" > "${SKILLS_DIR}/references/team_orchestration.md"
 
+    # Download scripts
+    echo -e "${GRAY}  -> Fetching scripts/swarm_bus.py...${NC}"
+    ${DOWNLOAD_CMD} "${REPO_RAW_URL}/scripts/swarm_bus.py" > "${SKILLS_DIR}/scripts/swarm_bus.py"
+
+    echo -e "${GRAY}  -> Fetching scripts/test_runner.py...${NC}"
+    ${DOWNLOAD_CMD} "${REPO_RAW_URL}/scripts/test_runner.py" > "${SKILLS_DIR}/scripts/test_runner.py"
+
+    echo -e "${GRAY}  -> Fetching scripts/emoji_linter.py...${NC}"
+    ${DOWNLOAD_CMD} "${REPO_RAW_URL}/scripts/emoji_linter.py" > "${SKILLS_DIR}/scripts/emoji_linter.py"
+
+    echo -e "${GRAY}  -> Fetching scripts/orchestrator.py...${NC}"
+    ${DOWNLOAD_CMD} "${REPO_RAW_URL}/scripts/orchestrator.py" > "${SKILLS_DIR}/scripts/orchestrator.py"
+    chmod +x "${SKILLS_DIR}/scripts/"*.py 2>/dev/null || true
+
     # Download plugin manifest and rules
     echo -e "${GRAY}  -> Fetching plugin.json...${NC}"
     ${DOWNLOAD_CMD} "${REPO_RAW_URL}/plugin.json" > "${PLUGINS_DIR}/plugin.json"
@@ -134,6 +153,10 @@ REQUIRED_FILES=(
     "${SKILLS_DIR}/SKILL.md"
     "${SKILLS_DIR}/references/agent_prompts.md"
     "${SKILLS_DIR}/references/team_orchestration.md"
+    "${SKILLS_DIR}/scripts/swarm_bus.py"
+    "${SKILLS_DIR}/scripts/test_runner.py"
+    "${SKILLS_DIR}/scripts/emoji_linter.py"
+    "${SKILLS_DIR}/scripts/orchestrator.py"
     "${PLUGINS_DIR}/plugin.json"
     "${PLUGINS_DIR}/rules/SWARM.md"
 )
@@ -150,7 +173,7 @@ if [[ "${INSTALL_VALID}" == "true" ]]; then
     chmod -R 644 "${SKILLS_DIR}"/*.md "${SKILLS_DIR}/references"/*.md 2>/dev/null || true
     chmod -R 644 "${PLUGINS_DIR}"/*.json "${PLUGINS_DIR}/rules"/*.md 2>/dev/null || true
 
-    echo -e "\n${BOLD}${GREEN}[OK] Swarm multi-agent system installed successfully!${NC}\n"
+    echo -e "\n${BOLD}${GREEN}[OK] Swarm multi-agent engineering team installed successfully!${NC}\n"
     echo -e "Registered Specialist Agents in Swarm Roster:"
     echo -e "  - ${CYAN}gemini-architect${NC}           (Decomposition, contracts & specs)"
     echo -e "  - ${CYAN}gemini-coder${NC}               (Surgical polyglot implementation)"
@@ -159,9 +182,14 @@ if [[ "${INSTALL_VALID}" == "true" ]]; then
     echo -e "  - ${CYAN}gemini-security-researcher${NC} (Vulnerability auditor, CVE hunter)"
     echo -e "  - ${CYAN}gemini-code-expert${NC}         (Algorithmic specialist, complex logic)"
     echo -e "  - ${CYAN}gemini-perf-expert${NC}         (Performance, memory & latency engineer)\n"
+    echo -e "Engineered Team Tooling:"
+    echo -e "  - ${GRAY}scripts/swarm_bus.py${NC}         - Inter-agent message bus & task board"
+    echo -e "  - ${GRAY}scripts/test_runner.py${NC}       - Multi-framework QA test runner"
+    echo -e "  - ${GRAY}scripts/emoji_linter.py${NC}      - Zero-emoji policy enforcer"
+    echo -e "  - ${GRAY}scripts/orchestrator.py${NC}      - Workflow runner & delivery reporting\n"
     echo -e "Available commands in Antigravity:"
-    echo -e "  - ${BOLD}${CYAN}/swarm [task]${NC}             - Interactive swarm selection & collaborative coding"
-    echo -e "  - ${BOLD}${CYAN}/swarm build prd.md${NC}       - Build PRD with selected swarm team"
+    echo -e "  - ${BOLD}${CYAN}/swarm [task]${NC}             - Interactive swarm selection & collaborative engineering"
+    echo -e "  - ${BOLD}${CYAN}/swarm build prd.md${NC}       - Build PRD with autonomous swarm team"
     echo -e "  - ${CYAN}/swarm security${NC}             - Run deep security vulnerability audit"
     echo -e "  - ${CYAN}/swarm expert <topic>${NC}       - Consult domain & algorithmic code expert"
     echo -e "  - ${CYAN}/swarm perf${NC}                 - Profile memory leaks and CPU bottlenecks"
