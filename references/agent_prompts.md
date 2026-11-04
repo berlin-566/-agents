@@ -1,6 +1,6 @@
 # Agent Prompts and Self-Healing Reference Guide
 
-This reference document contains the full prompt specifications, dispatch templates, and self-healing error-recovery prompts for the complete specialist roster in `/agents`.
+This reference document contains the full prompt specifications, dispatch templates, and self-healing error-recovery prompts for the complete specialist roster in `/swarm`.
 
 ---
 

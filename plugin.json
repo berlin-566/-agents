@@ -1,4 +1,4 @@
 {
-  "name": "agents",
-  "description": "Claude Code-style multi-agent specialist roster for Gemini in Antigravity"
+  "name": "swarm",
+  "description": "Claude Code-style multi-agent swarm orchestration for Gemini in Antigravity"
 }

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# /agents - Auto-Installer for Google Antigravity
-# Multi-Agent Collaborative Coding Team for Gemini
-# Repo: https://github.com/berlin-566/-agents
+# /swarm - Auto-Installer for Google Antigravity
+# Multi-Agent Swarm Orchestration Team for Gemini
+# Repo: https://github.com/berlin-566/-swarm
 # Zero-Emoji Policy Enforced
 # ==============================================================================
 
@@ -19,8 +19,8 @@ NC='\033[0m' # No Color
 
 echo -e "${BOLD}${CYAN}"
 echo "  +------------------------------------------------------------+"
-echo "  |             /agents for Google Antigravity                 |"
-echo "  |     Multi-Agent Specialist Engineering Team for Gemini     |"
+echo "  |              /swarm for Google Antigravity                 |"
+echo "  |        Multi-Agent Swarm Engineering Team for Gemini       |"
 echo "  +------------------------------------------------------------+"
 echo -e "${NC}"
 
@@ -35,7 +35,7 @@ for arg in "$@"; do
         --help|-h)
             echo "Usage: install.sh [--local|--help]"
             echo "  Default: Installs globally to ~/.gemini/config/ (skills & plugins)"
-            echo "  --local: Installs into current workspace (.agents/)"
+            echo "  --local: Installs into current workspace (.swarm/)"
             exit 0
             ;;
     esac
@@ -43,19 +43,33 @@ done
 
 # Determine target directories
 if [[ "${INSTALL_MODE}" == "workspace" ]]; then
-    SKILLS_DIR="$(pwd)/.agents/skills/agents"
-    PLUGINS_DIR="$(pwd)/.agents/plugins/agents"
+    SKILLS_DIR="$(pwd)/.swarm/skills/swarm"
+    PLUGINS_DIR="$(pwd)/.swarm/plugins/swarm"
+    LEGACY_SKILLS_DIR="$(pwd)/.agents/skills/agents"
+    LEGACY_PLUGINS_DIR="$(pwd)/.agents/plugins/agents"
     echo -e "[INFO] Installation Mode: ${YELLOW}Workspace (Local Project)${NC}"
 else
     CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.gemini/config}"
-    SKILLS_DIR="${CONFIG_DIR}/skills/agents"
-    PLUGINS_DIR="${CONFIG_DIR}/plugins/agents"
+    SKILLS_DIR="${CONFIG_DIR}/skills/swarm"
+    PLUGINS_DIR="${CONFIG_DIR}/plugins/swarm"
+    LEGACY_SKILLS_DIR="${CONFIG_DIR}/skills/agents"
+    LEGACY_PLUGINS_DIR="${CONFIG_DIR}/plugins/agents"
     echo -e "[INFO] Installation Mode: ${YELLOW}Global (~/.gemini/config/)${NC}"
 fi
 
-REPO_RAW_URL="https://raw.githubusercontent.com/berlin-566/-agents/main"
+REPO_RAW_URL="https://raw.githubusercontent.com/berlin-566/-swarm/main"
 
-# Step 1: Check and create directory trees
+# Step 1: Clean legacy /agents installation to avoid clashes
+if [[ -d "${LEGACY_SKILLS_DIR}" ]]; then
+    echo -e "[INFO] Removing legacy skill: ${GRAY}${LEGACY_SKILLS_DIR}${NC}"
+    rm -rf "${LEGACY_SKILLS_DIR}"
+fi
+if [[ -d "${LEGACY_PLUGINS_DIR}" ]]; then
+    echo -e "[INFO] Removing legacy plugin: ${GRAY}${LEGACY_PLUGINS_DIR}${NC}"
+    rm -rf "${LEGACY_PLUGINS_DIR}"
+fi
+
+# Step 2: Check and create directory trees
 echo -e "[INFO] Checking target directories:"
 echo -e "  - Skills:  ${GRAY}${SKILLS_DIR}${NC}"
 echo -e "  - Plugins: ${GRAY}${PLUGINS_DIR}${NC}"
@@ -64,7 +78,7 @@ mkdir -p "${SKILLS_DIR}/references"
 mkdir -p "${PLUGINS_DIR}/rules"
 echo -e "[OK] Directory trees verified."
 
-# Step 2: Detect execution source (Local repository vs Remote curl)
+# Step 3: Detect execution source (Local repository vs Remote curl)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd || echo "")"
 
 if [[ -n "${SCRIPT_DIR}" && -f "${SCRIPT_DIR}/SKILL.md" ]]; then
@@ -84,7 +98,7 @@ if [[ -n "${SCRIPT_DIR}" && -f "${SCRIPT_DIR}/SKILL.md" ]]; then
         cp -rf "${SCRIPT_DIR}/rules/"* "${PLUGINS_DIR}/rules/"
     fi
 else
-    echo -e "[INFO] Downloading latest files from GitHub (${CYAN}berlin-566/-agents${NC})..."
+    echo -e "[INFO] Downloading latest files from GitHub (${CYAN}berlin-566/-swarm${NC})..."
     
     # Check download utility
     DOWNLOAD_CMD=""
@@ -111,17 +125,17 @@ else
     echo -e "${GRAY}  -> Fetching plugin.json...${NC}"
     ${DOWNLOAD_CMD} "${REPO_RAW_URL}/plugin.json" > "${PLUGINS_DIR}/plugin.json"
 
-    echo -e "${GRAY}  -> Fetching rules/AGENTS.md...${NC}"
-    ${DOWNLOAD_CMD} "${REPO_RAW_URL}/rules/AGENTS.md" > "${PLUGINS_DIR}/rules/AGENTS.md"
+    echo -e "${GRAY}  -> Fetching rules/SWARM.md...${NC}"
+    ${DOWNLOAD_CMD} "${REPO_RAW_URL}/rules/SWARM.md" > "${PLUGINS_DIR}/rules/SWARM.md"
 fi
 
-# Step 3: Validate file integrity and size
+# Step 4: Validate file integrity and size
 REQUIRED_FILES=(
     "${SKILLS_DIR}/SKILL.md"
     "${SKILLS_DIR}/references/agent_prompts.md"
     "${SKILLS_DIR}/references/team_orchestration.md"
     "${PLUGINS_DIR}/plugin.json"
-    "${PLUGINS_DIR}/rules/AGENTS.md"
+    "${PLUGINS_DIR}/rules/SWARM.md"
 )
 
 INSTALL_VALID=true
@@ -136,22 +150,23 @@ if [[ "${INSTALL_VALID}" == "true" ]]; then
     chmod -R 644 "${SKILLS_DIR}"/*.md "${SKILLS_DIR}/references"/*.md 2>/dev/null || true
     chmod -R 644 "${PLUGINS_DIR}"/*.json "${PLUGINS_DIR}/rules"/*.md 2>/dev/null || true
 
-    echo -e "\n${BOLD}${GREEN}[OK] Multi-agent system installed successfully!${NC}\n"
-    echo -e "Registered Specialist Agents:"
-    echo -e "  - ${CYAN}gemini-security-researcher${NC} (Vulnerability auditor, CVE hunter)"
-    echo -e "  - ${CYAN}gemini-code-expert${NC}         (Algorithmic specialist, complex logic)"
-    echo -e "  - ${CYAN}gemini-perf-expert${NC}         (Performance, memory & latency engineer)"
-    echo -e "  - ${CYAN}gemini-architect${NC}           (PRD decomposition & system contracts)"
+    echo -e "\n${BOLD}${GREEN}[OK] Swarm multi-agent system installed successfully!${NC}\n"
+    echo -e "Registered Specialist Agents in Swarm Roster:"
+    echo -e "  - ${CYAN}gemini-architect${NC}           (Decomposition, contracts & specs)"
     echo -e "  - ${CYAN}gemini-coder${NC}               (Surgical polyglot implementation)"
     echo -e "  - ${CYAN}gemini-reviewer${NC}            (Adversarial auditor, zero-emoji gate)"
-    echo -e "  - ${CYAN}gemini-tester${NC}              (QA engineer & automated test runner)\n"
+    echo -e "  - ${CYAN}gemini-tester${NC}              (QA engineer & automated test runner)"
+    echo -e "  - ${CYAN}gemini-security-researcher${NC} (Vulnerability auditor, CVE hunter)"
+    echo -e "  - ${CYAN}gemini-code-expert${NC}         (Algorithmic specialist, complex logic)"
+    echo -e "  - ${CYAN}gemini-perf-expert${NC}         (Performance, memory & latency engineer)\n"
     echo -e "Available commands in Antigravity:"
-    echo -e "  - ${BOLD}${CYAN}/agents build prd.md${NC}       - Build complete PRD with the entire agent team"
-    echo -e "  - ${CYAN}/agents security${NC}           - Run deep security vulnerability audit"
-    echo -e "  - ${CYAN}/agents expert <topic>${NC}     - Consult domain & algorithmic code expert"
-    echo -e "  - ${CYAN}/agents perf${NC}               - Profile memory leaks and CPU bottlenecks"
-    echo -e "  - ${CYAN}/agents review${NC}             - Adversarial diff audit with zero-emoji check"
-    echo -e "  - ${CYAN}/agents test${NC}               - QA test generation and automated runner\n"
+    echo -e "  - ${BOLD}${CYAN}/swarm [task]${NC}             - Interactive swarm selection & collaborative coding"
+    echo -e "  - ${BOLD}${CYAN}/swarm build prd.md${NC}       - Build PRD with selected swarm team"
+    echo -e "  - ${CYAN}/swarm security${NC}             - Run deep security vulnerability audit"
+    echo -e "  - ${CYAN}/swarm expert <topic>${NC}       - Consult domain & algorithmic code expert"
+    echo -e "  - ${CYAN}/swarm perf${NC}                 - Profile memory leaks and CPU bottlenecks"
+    echo -e "  - ${CYAN}/swarm review${NC}               - Adversarial diff audit with zero-emoji check"
+    echo -e "  - ${CYAN}/swarm test${NC}                 - QA test generation and automated runner\n"
 else
     echo -e "\n${RED}[ERROR] Installation failed. One or more files were not installed properly.${NC}"
     exit 1
